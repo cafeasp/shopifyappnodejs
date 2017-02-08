@@ -1,5 +1,7 @@
 var express = require('express');
 var router = express.Router();
+var url = require('url');
+var verifyCall = require('../tools/verify');
 
 //var config = require('../config/config.json'); //testing
 /* GET home page. */
@@ -9,23 +11,27 @@ router.get('/', function(req, res, next) {
 
 router.get('/shopify/install',function(req,res,next){
 	var shop  = req.query.shop;
-	console.log(shop);
 	var appId=process.env.appId;
 	var appSecret=process.env.appSecret;
 	var appScope=process.env.appScope;
 	var appDomain=process.env.appDomain;
 
 	//build the url
-	var url = `https://${shop}/admin/oauth/authorize?client_id=${appId}&scope=${appScope}&redirect_uri=https://${appDomain}/shopify/auth`;
+	var installUrl = `https://${shop}/admin/oauth/authorize?client_id=${appId}&scope=${appScope}&redirect_uri=https://${appDomain}/shopify/auth`;
 	
-	console.log(url);
-	res.redirect(url);
+	res.redirect(installUrl);
 });
 
 router.get('/shopify/auth',function(req,res,next){
-	//todo 
+	var shop  = req.query.shop;
+
+	// 1. Parse the string URL to object
+    var urlObj = url.parse(req.url);
+    // 2. Get the 'query string' portion
+    var query = urlObj.search.slice(1);
+	console.log('is ok ' + verifyCall.verify(query));
 	//get token
-	res.render('index',{title:'get token'});
+	res.render('index',{title:'hello'});
 });
 
 module.exports = router;
