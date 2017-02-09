@@ -24,13 +24,27 @@ router.get('/shopify/install',function(req,res,next){
 
 router.get('/shopify/auth',function(req,res,next){
 	var shop  = req.query.shop;
+	
+	var regex = /^[a-z\d_.-]+[.]myshopify[.]com$/;
+	if(shop.match(regex)){
+		console.log('regex is ok');
+	}else{
+		//exit
+		
+	}
 
 	// 1. Parse the string URL to object
     var urlObj = url.parse(req.url);
     // 2. Get the 'query string' portion
     var query = urlObj.search.slice(1);
-	console.log('is ok ' + verifyCall.verify(query));
-	//get token
+	if(verifyCall.verify(query)){
+		//get token
+	}else{
+		//exit
+		
+	}
+
+
 	res.render('index',{title:'hello'});
 });
 
