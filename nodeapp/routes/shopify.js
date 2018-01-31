@@ -79,4 +79,31 @@ router.get('/auth', function (req, res, next) {
 router.get('/app', function (req, res, next) {
     res.render('app', { title: 'Express App' });
 });
+
+router.get('/app/products', function (req, res, next) {
+
+    let url = 'https://' + req.query.shop + '/admin/products.json';
+
+    let options = {
+        method: 'GET',
+        uri: url,
+        json: true,
+        headers: {
+            'X-Shopify-Access-Token': process.env.appStoreTokenTest,
+            'content-type': 'application/json'
+        }
+    };
+
+    request(options)
+        .then(function (parsedBody) {
+            console.log(parsedBody);
+            res.status(200).send('good');
+        })
+        .catch(function (err) {
+            console.log(err);
+            res.status(500).send('good');
+        });
+
+
+});
 module.exports = router;
