@@ -19,7 +19,7 @@ router.get('/install', function (req, res, next) {
 });
 
 router.get('/auth', function (req, res, next) {
-    let securityPass = false;
+    let validRegex = false;
     let shop = req.query.shop;
     let code = req.query.code;
 
@@ -28,10 +28,10 @@ router.get('/auth', function (req, res, next) {
 
     if (shop.match(regex)) {
         console.log('regex is ok');
-        securityPass = true;
+        validRegex = true;
     } else {
         //exit
-        securityPass = false;
+        validRegex = false;
     }
 
     // 1. Parse the string URL to object
@@ -48,7 +48,7 @@ router.get('/auth', function (req, res, next) {
     }
     let appId = process.env.appId;
     let appSecret = process.env.appSecret;
-    if (securityPass) {
+    if (validRegex && securityPass) {
 
         //Exchange temporary code for a permanent access token
         let accessTokenRequestUrl = 'https://' + shop + '/admin/oauth/access_token';
