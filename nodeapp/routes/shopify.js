@@ -98,7 +98,7 @@ router.post('/app/create-product', function (req, res) {
 
     let new_product = {
         product: {
-            title: "2 Dell Laptop with 8GB RAM i5",
+            title: "3 Dell Laptop with 8GB RAM i5",
             body_html: "<strong>Laptop On Sale</strong>",
             vendor: "Dell",
             product_type: "mobile",
