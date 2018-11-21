@@ -7,6 +7,7 @@ var request = require('request-promise');
 router.get('/install', function (req, res, next) {
     var shop = req.query.shop;
     var appId = process.env.appId;
+    console.log(appId);
     var appSecret = process.env.appSecret;
     var appScope = process.env.appScope;
     var appDomain = process.env.appDomain;
@@ -15,12 +16,13 @@ router.get('/install', function (req, res, next) {
     var installUrl = `https://${shop}/admin/oauth/authorize?client_id=${appId}&scope=${appScope}&redirect_uri=https://${appDomain}/shopify/auth`;
 
     res.redirect(installUrl);
-
+    //res.json('test');
 });
 
 router.get('/auth', function (req, res, next) {
     let securityPass = false;
-    let regex = false;
+    let appId = process.env.appId;
+    let appSecret = process.env.appSecret;
     let shop = req.query.shop;
     let code = req.query.code;
 
@@ -29,10 +31,10 @@ router.get('/auth', function (req, res, next) {
 
     if (shop.match(regex)) {
         console.log('regex is ok');
-        regex = true;
+        securityPass = true;
     } else {
         //exit
-        regex = false;
+        securityPass = false;
     }
 
     // 1. Parse the string URL to object
@@ -47,8 +49,7 @@ router.get('/auth', function (req, res, next) {
         //exit
         securityPass = false;
     }
-    let appId = process.env.appId;
-    let appSecret = process.env.appSecret;
+
     if (securityPass && regex) {
 
         //Exchange temporary code for a permanent access token
@@ -78,9 +79,59 @@ router.get('/auth', function (req, res, next) {
 
 
 router.get('/app', function (req, res, next) {
-    res.render('app', { title: 'Express App' });
+    let shop = req.query.shop;
+    res.render('app', { shop: shop });
 });
+router.post('/app/create-product', function (req, res) {
 
+    //this is what we need to post
+    // POST /admin/products.json
+    // {
+    //   "product": {
+    //     "title": "Burton Custom Freestyle 151",
+    //     "body_html": "<strong>Good snowboard!</strong>",
+    //     "vendor": "Burton",
+    //     "product_type": "Snowboard",
+    //     "tags": "Barnes & Noble, John's Fav, &quot;Big Air&quot;"
+    //   }
+    // }
+
+    let new_product = {
+        product: {
+            title: "2 Dell Laptop with 8GB RAM i5",
+            body_html: "<strong>Laptop On Sale</strong>",
+            vendor: "Dell",
+            product_type: "mobile",
+            tags: "laptop,mobile,i5"
+        }
+    };
+    console.log(req.query.shop);
+    let url = 'https://' + req.query.shop + '/admin/products.json';
+
+    let options = {
+        method: 'POST',
+        uri: url,
+        json: true,
+        headers: {
+            'X-Shopify-Access-Token': process.env.appStoreTokenTest,
+            'content-type': 'application/json'
+        },
+        body: new_product//pass new product object - NEW - request-promise problably updated
+    };
+
+    request.post(options)
+        .then(function (parsedBody) {
+            console.log(parsedBody);
+            res.json("good");
+        })
+        .catch(function (err) {
+            console.log(err);
+            res.json("bad");
+        });
+
+
+
+});
 router.get('/app/products', function (req, res, next) {
 
     let url = 'https://' + req.query.shop + '/admin/products.json';
@@ -98,11 +149,11 @@ router.get('/app/products', function (req, res, next) {
     request(options)
         .then(function (parsedBody) {
             console.log(parsedBody);
-            res.status(200).send('good');
+            res.json(parsedBody);
         })
         .catch(function (err) {
             console.log(err);
-            res.status(500).send('good');
+            res.json(err);
         });
 
 
