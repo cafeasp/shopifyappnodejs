@@ -1,7 +1,73 @@
-<h2>Shopify App home page</h2>
+<h2 class="text-center">Shopify Product App </h2>
 <hr>
-<button class="btn btn-primary" onclick="create('{{shop}}')">Create Product</button>
+<div class="row">
+    <div class="col-md-3 pb-4">
+        <div class="card border border-primary">
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="title">Tittle</label>
+                    <input type="text" class="form-control" id="title" aria-describedby="title" placeholder="Enter title">
+
+                </div>
+                <div class="form-group">
+                    <label for="body">Body</label>
+                    <input type="text" class="form-control" id="body_html" aria-describedby="body" placeholder="Enter body">
+
+                </div>
+                <div class="form-group">
+                    <label for="vendor">Vendor</label>
+                    <input type="text" class="form-control" id="vendor" aria-describedby="vendor" placeholder="Enter vendor">
+
+                </div>
+                <div class="form-group">
+                    <label for="producttype">Product Type</label>
+                    <input type="text" class="form-control" id="producttype" aria-describedby="producttype" placeholder="Enter product type">
+
+                </div>
+                <div class="form-group">
+                    <label for="tags">Tags</label>
+                    <input type="text" class="form-control" id="tags" aria-describedby="tags" placeholder="Enter tags">
+
+                </div>
+
+                <!-- <button class="btn btn-primary" onclick="create('{{shop}}')">Create Product</button> -->
+                <button class="btn btn-primary" onclick="createByUser('{{shop}}')">Create Product</button>
+                <button class="btn btn-info float-right" onclick="clearFields()">Clear</button>
+            </div>
+
+
+
+        </div>
+    </div>
+
+    <div class="col-md-9">
+        <div class="card border border-primary">
+            <div class="card-body">
+                <button class="btn btn-primary mb-4" onclick="view('{{shop}}')">View Products</button>
+                <table id="products" class="table">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">Product Id</th>
+                            <th scope="col">Title</th>
+                            <th scope="col">Body</th>
+                            <th scope="col">Vendor</th>
+                            <th scope="col">Types</th>
+                            <th scope="col">Tags</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
 <hr>
-<button class="btn btn-primary" onclick="view('{{shop}}')">View Products</button>
+
 <script type="text/javascript" src="/javascript/product.js">
 </script>

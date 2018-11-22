@@ -98,11 +98,11 @@ router.post('/app/create-product', function (req, res) {
 
     let new_product = {
         product: {
-            title: "3 Dell Laptop with 8GB RAM i5",
-            body_html: "<strong>Laptop On Sale</strong>",
-            vendor: "Dell",
-            product_type: "mobile",
-            tags: "laptop,mobile,i5"
+            title: req.body.title,
+            body_html: req.body.body_html,
+            vendor: req.body.vendor,
+            product_type: req.body.product_type,
+            tags: req.body.tags
         }
     };
     console.log(req.query.shop);
@@ -112,6 +112,7 @@ router.post('/app/create-product', function (req, res) {
         method: 'POST',
         uri: url,
         json: true,
+        resolveWithFullResponse: true,//added this to view status code
         headers: {
             'X-Shopify-Access-Token': process.env.appStoreTokenTest,
             'content-type': 'application/json'
@@ -120,15 +121,19 @@ router.post('/app/create-product', function (req, res) {
     };
 
     request.post(options)
-        .then(function (parsedBody) {
-            console.log(parsedBody);
-            res.json("good");
+        .then(function (response) {
+            console.log(response.body);
+            if (response.statusCode == 201) {
+                res.json(true);
+            } else {
+                res.json(false);
+            }
+
         })
         .catch(function (err) {
             console.log(err);
-            res.json("bad");
+            res.json(false);
         });
-
 
 
 });
