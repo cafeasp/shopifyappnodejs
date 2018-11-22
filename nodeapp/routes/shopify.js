@@ -137,6 +137,35 @@ router.post('/app/create-product', function (req, res) {
 
 
 });
+router.post('/app/delete', function (req, res) {
+
+    let url = 'https://' + req.query.shop + '/admin/products/' + req.query.id + '.json';
+
+    let options = {
+        method: 'DELETE',
+        uri: url,
+        resolveWithFullResponse: true,//added this to view status code
+        headers: {
+            'X-Shopify-Access-Token': process.env.appStoreTokenTest,
+            'content-type': 'application/json'
+        }
+    };
+
+    request.delete(options)
+        .then(function (response) {
+            console.log(response.body);
+            if (response.statusCode == 200) {
+                res.json(true);
+            } else {
+                res.json(false);
+            }
+
+        })
+        .catch(function (err) {
+            console.log(err);
+            res.json(false);
+        });
+});
 router.get('/app/products', function (req, res, next) {
 
     let url = 'https://' + req.query.shop + '/admin/products.json';

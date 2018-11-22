@@ -62,7 +62,7 @@ function addRows(products) {
     $("#products tbody").empty();
     products.forEach(element => {
         let row = '<tr><th scope="row">' + element.id + '</th><td>' + element.title + '</td><td>' + element.body_html +
-            '</td><td>' + element.vendor + '</td><td>' + element.product_type + '</td><td>' + element.tags + '</td></tr>';
+            '</td><td>' + element.vendor + '</td><td>' + element.product_type + '</td><td>' + element.tags + '</td><td><a id="' + element.id + '" onclick="deleteProduct(this.id,userShop)" href="#">Delete</a></td></tr>';
         $("#products tbody").append(row);
     });
 }
@@ -73,4 +73,15 @@ function clearFields() {
     $("#vendor").val('');
     $("#producttype").val('');
     $("#tags").val('');
+}
+
+function deleteProduct(id, shop) {
+    $.ajax({
+        url: '/shopify/app/delete?shop=' + shop + '&id=' + id,
+        type: 'Post',
+        success: function (result) {
+            console.log(result);
+            view(shop);
+        }
+    });
 }
