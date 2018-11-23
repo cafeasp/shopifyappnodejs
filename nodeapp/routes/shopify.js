@@ -4,10 +4,34 @@ var url = require('url');
 var verifyCall = require('../tools/verify');
 var request = require('request-promise');
 
+//upload image section
+var multer = require('multer');
+var storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './nodeapp/public/uploads/');
+    },
+    filename: function (req, file, cb) {
+
+
+
+        cb(null, file.originalname);
+    }
+});
+const imageFilter = function (req, file, cb) {
+    if (!file.originalname.match(/\.(jpg|png|gif|PNG|JPG|jpeg|JPEG)$/)) {
+        return cb(new Error('Only image files are allowed.'), false);
+    }
+    cb(null, true);
+};
+var limit = { fileSize: 8000000 };
+
+var upload = multer({ storage: storage, limits: limit, fileFilter: imageFilter }).array('file', 50);
+//end upload image section
+
 router.get('/install', function (req, res, next) {
     var shop = req.query.shop;
     var appId = process.env.appId;
-    console.log(appId);
+
     var appSecret = process.env.appSecret;
     var appScope = process.env.appScope;
     var appDomain = process.env.appDomain;
@@ -15,8 +39,16 @@ router.get('/install', function (req, res, next) {
     //build the url
     var installUrl = `https://${shop}/admin/oauth/authorize?client_id=${appId}&scope=${appScope}&redirect_uri=https://${appDomain}/shopify/auth`;
 
-    res.redirect(installUrl);
-    //res.json('test');
+    //Do I have the token already for this store?
+    //Check database
+    //For tutorial ONLY - check .env variable value
+    if (process.env.appStoreTokenTest.length > 0) {
+        res.redirect('/shopify/app?shop=' + shop);
+    } else {
+        //go here if you don't have the token yet
+        res.redirect(installUrl);
+    }
+
 });
 
 router.get('/auth', function (req, res, next) {
@@ -96,6 +128,8 @@ router.post('/app/create-product', function (req, res) {
     //   }
     // }
 
+
+
     let new_product = {
         product: {
             title: req.body.title,
@@ -137,6 +171,75 @@ router.post('/app/create-product', function (req, res) {
 
 
 });
+
+router.post('/app/file-upload', function (req, res, next) {
+
+    try {
+        upload(req, res, function (err) {
+
+            if (err) {
+                if (err.code == 'LIMIT_FILE_SIZE') {
+                    console.log(err);
+                    res.status(413).json({ error: err.message });
+                } else {
+                    console.log(err);
+                    res.status(413).json({ error: err.message });
+                }
+            } else {
+                //upload to Shopify
+                console.log(req.query.filename);
+
+
+                let url = 'https://' + req.query.shop + '/admin/products/' + req.query.id + '.json';
+
+                let update_product = {
+                    product: {
+                        id: req.query.id,
+                        images: [
+                            {
+                                src: 'https://' + process.env.appDomain + '/uploads/' + req.query.filename
+                            }
+                        ]
+                    }
+                };
+
+                let options = {
+                    method: 'PUT',
+                    uri: url,
+                    json: true,
+                    resolveWithFullResponse: true,//added this to view status code
+                    headers: {
+                        'X-Shopify-Access-Token': process.env.appStoreTokenTest,
+                        'content-type': 'application/json'
+                    },
+                    body: update_product
+                };
+
+                request.put(options)
+                    .then(function (response) {
+                        console.log(response.body);
+                        if (response.statusCode == 200) {
+                            res.send({ message: 'uploaded' });
+                        } else {
+                            res.send({ message: 'fail to upload' });
+                        }
+
+                    })
+                    .catch(function (err) {
+                        console.log(err);
+                        res.send({ message: 'error' });
+                    });
+
+            }
+
+        });
+    } catch (error) {
+        console.log(error);
+    }
+
+
+});
+
 router.post('/app/delete', function (req, res) {
 
     let url = 'https://' + req.query.shop + '/admin/products/' + req.query.id + '.json';
@@ -192,4 +295,6 @@ router.get('/app/products', function (req, res, next) {
 
 
 });
+
+
 module.exports = router;

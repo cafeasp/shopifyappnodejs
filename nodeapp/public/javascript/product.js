@@ -13,6 +13,7 @@ function create(shop) {
 
 //create product by user input
 function createByUser(shop) {
+
     let title = $("#title").val();
     let body_html = $("#body_html").val();
     let vendor = $("#vendor").val();
@@ -20,34 +21,39 @@ function createByUser(shop) {
     let tags = $("#tags").val();
 
 
-    let product = {
-        title: title,
-        body_html: body_html,
-        vendor: vendor,
-        product_type: product_type,
-        tags: tags
+    if (title.length > 0) {
+        let product = {
+            title: title,
+            body_html: body_html,
+            vendor: vendor,
+            product_type: product_type,
+            tags: tags
+        }
+
+
+        $.ajax({
+            url: '/shopify/app/create-product?shop=' + shop,
+            type: 'Post', processData: false,
+            data: JSON.stringify(product),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                console.log(result);
+                if (result) {
+                    view(shop);
+                }
+            }
+        });
+    } else {
+        alert('Enter a title first');
     }
 
-
-    $.ajax({
-        url: '/shopify/app/create-product?shop=' + shop,
-        type: 'Post', processData: false,
-        data: JSON.stringify(product),
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function (result) {
-            console.log(result);
-            if (result) {
-                view(shop);
-            }
-        }
-    });
 }
 
 
 //view products
 function view(shop) {
-    console.log('view products for ' + shop);
+
     $.ajax({
         url: '/shopify/app/products?shop=' + shop,
         type: 'Get',
@@ -62,7 +68,7 @@ function addRows(products) {
     $("#products tbody").empty();
     products.forEach(element => {
         let row = '<tr><th scope="row">' + element.id + '</th><td>' + element.title + '</td><td>' + element.body_html +
-            '</td><td>' + element.vendor + '</td><td>' + element.product_type + '</td><td>' + element.tags + '</td><td><a id="' + element.id + '" onclick="deleteProduct(this.id,userShop)" href="#">Delete</a></td></tr>';
+            '</td><td>' + element.vendor + '</td><td>' + element.product_type + '</td><td>' + element.tags + '</td><td><a id="' + element.id + '" onclick="deleteProduct(this.id,userShop)" href="#">Delete</a> | <a id="' + element.id + '" onclick="selectImage(this.id)" href="#">Add Image</a></td></tr>';
         $("#products tbody").append(row);
     });
 }
@@ -83,5 +89,35 @@ function deleteProduct(id, shop) {
             console.log(result);
             view(shop);
         }
+    });
+}
+
+function selectImage(id) {
+
+    $("#uploadImageId").val(id);
+    $('#exampleModalCenter').modal('show');
+}
+
+function uploadImage() {
+    let fd = new FormData();
+    let files = $('#productImage')[0].files[0];
+    fd.append('file', files);
+    let filename = $('#productImage')[0].files[0].name;
+
+    $.ajax({
+        url: '/shopify/app/file-upload?shop=' + userShop + '&id=' + $("#uploadImageId").val() + '&filename=' + filename,
+        type: 'post',
+        data: fd,
+        contentType: false,
+        processData: false,
+        success: function (response) {
+            if (response != 0) {
+                console.log(response);
+                $('#exampleModalCenter').modal('hide');
+                alert("Image uploaded");
+            } else {
+                alert('file not uploaded');
+            }
+        },
     });
 }
