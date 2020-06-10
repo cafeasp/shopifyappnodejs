@@ -14,3 +14,5 @@ This project scope is: read_products,write_products but you can change this for 
 I'm using ngrok.com to tunnel traffic from the web to my localhost app.
 
 Videos about this app are on youtube.com/user/videocode2
+
+Make sure you install https://www.npmjs.com/package/dotenv for the .env file to work.
