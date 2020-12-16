@@ -32,7 +32,6 @@ router.get('/install', function (req, res, next) {
     var shop = req.query.shop;
     var appId = process.env.appId;
 
-    var appSecret = process.env.appSecret;
     var appScope = process.env.appScope;
     var appDomain = process.env.appDomain;
 
